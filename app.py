@@ -198,11 +198,19 @@ def generate_signals_logic(assets, count, timeframe, multi_assist=False):
 # API ROUTES
 # ============================================
 
+# ============================================
+# API ROUTES
+# ============================================
+
 @app.route('/')
 def index():
     """Serve your HTML page"""
     return render_template('index.html')
 
+# ✅ ADD THIS TEST ROUTE RIGHT HERE
+@app.route('/api/test')
+def test():
+    return jsonify({'status': 'ok', 'message': 'Server is working!'})
 
 @app.route('/api/verify-password', methods=['POST'])
 def verify_password():
