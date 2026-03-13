@@ -5,10 +5,10 @@ import random
 import time
 import secrets
 
-# Create Flask app
-app = Flask(__name__)
+# Create Flask app with explicit template folder for Vercel
+app = Flask(__name__, template_folder='templates')
 
-# Configuration - Password (same as your "j")
+# Configuration - Password
 app.config['PASSWORD'] = 'jummuubot'
 app.config['SECRET_KEY'] = secrets.token_hex(32)
 
@@ -124,24 +124,21 @@ TIMEFRAMES = [
     {'value': '240', 'label': '4h'}
 ]
 
-# Cache to prevent duplicate signals (same as your existingSignals Set)
+# Cache to prevent duplicate signals
 generated_signals_cache = set()
 
-
 # ============================================
-# SIGNAL GENERATION LOGIC (EXACTLY LIKE YOUR HTML, BUT HIDDEN)
+# SIGNAL GENERATION LOGIC (HIDDEN IN BACKEND)
 # ============================================
 
 def generate_random_interval():
     """Same as your HTML: Math.floor(Math.random() * 4) + 3"""
-    return random.randint(3, 6)
-
+    return random.randint(3, 4)
 
 def format_timeframe(tf):
     """Same as your HTML: return tf < 60 ? `M${tf}` : `H${tf/60}`"""
     tf_int = int(tf)
     return f"M{tf_int}" if tf_int < 60 else f"H{tf_int // 60}"
-
 
 def generate_signals_logic(assets, count, timeframe, multi_assist=False):
     """
@@ -153,11 +150,11 @@ def generate_signals_logic(assets, count, timeframe, multi_assist=False):
     next_time = datetime.now()
 
     for i in range(count):
-        # Add random interval (same as your generateRandomInterval)
+        # Add random interval
         next_time = next_time + timedelta(minutes=generate_random_interval())
         time_str = next_time.strftime('%H:%M')
 
-        # Select asset (same logic)
+        # Select asset
         if multi_assist and assets:
             selected_asset = random.choice(assets)
         else:
@@ -170,11 +167,11 @@ def generate_signals_logic(assets, count, timeframe, multi_assist=False):
         else:
             asset_label = selected_asset
 
-        # Create unique key to prevent duplicates (same as your existingSignals Set)
+        # Create unique key to prevent duplicates
         signal_key = f"{selected_asset}|{time_str}"
 
         if signal_key not in generated_signals_cache:
-            # Random direction (same as your Math.random() < 0.5)
+            # Random direction
             direction = random.choice(['CALL', 'PUT'])
 
             signals.append({
@@ -193,11 +190,6 @@ def generate_signals_logic(assets, count, timeframe, multi_assist=False):
 
     return signals
 
-
-# ============================================
-# API ROUTES
-# ============================================
-
 # ============================================
 # API ROUTES
 # ============================================
@@ -207,9 +199,9 @@ def index():
     """Serve your HTML page"""
     return render_template('index.html')
 
-# ✅ ADD THIS TEST ROUTE RIGHT HERE
 @app.route('/api/test')
 def test():
+    """Test route to check if server is working"""
     return jsonify({'status': 'ok', 'message': 'Server is working!'})
 
 @app.route('/api/verify-password', methods=['POST'])
@@ -226,7 +218,6 @@ def verify_password():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
-
 @app.route('/api/generate-signals', methods=['POST'])
 def generate_signals():
     """Generate signals - ALL LOGIC HIDDEN HERE"""
@@ -241,7 +232,7 @@ def generate_signals():
         if not assets:
             return jsonify({'success': False, 'error': 'No assets selected'}), 400
 
-        # Generate signals
+        # Generate signals using hidden logic
         signals = generate_signals_logic(assets, count, timeframe, multi_assist)
 
         return jsonify({
@@ -250,7 +241,6 @@ def generate_signals():
         })
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
-
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
