@@ -91,13 +91,6 @@ MARKETS = [
     {'value': 'FLOKIUSD_otc', 'label': 'Floki (OTC)', 'group': 'Cryptocurrencies'},
     {'value': 'DASHUSD_otc', 'label': 'Dash (OTC)', 'group': 'Cryptocurrencies'},
 
-    # Commodities (Real Market)
-    {'value': 'XAUUSD', 'label': 'Gold', 'group': 'Commodities (Real Market)'},
-    {'value': 'XAGUSD', 'label': 'Silver', 'group': 'Commodities (Real Market)'},
-    {'value': 'XBRUSD', 'label': 'Brent Oil', 'group': 'Commodities (Real Market)'},
-    {'value': 'XTIUSD', 'label': 'WTI Oil', 'group': 'Commodities (Real Market)'},
-    {'value': 'NATGAS', 'label': 'Natural Gas', 'group': 'Commodities (Real Market)'},
-
     # Commodities OTC
     {'value': 'UKBrent_otc', 'label': 'UK Brent Oil (OTC)', 'group': 'Commodities OTC'},
     {'value': 'USCrude_otc', 'label': 'US Crude Oil (OTC)', 'group': 'Commodities OTC'},
