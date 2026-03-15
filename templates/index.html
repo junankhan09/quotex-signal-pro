@@ -678,6 +678,76 @@
             transform: translateY(0);
         }
 
+        /* Analysis Terminal Styles */
+        .analysis-terminal {
+            background: #0a0e17;
+            border: 2px solid var(--primary-color);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.8;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+            min-height: 300px;
+            display: none;
+        }
+
+        .analysis-terminal.active {
+            display: block;
+            animation: glow 2s infinite;
+        }
+
+        @keyframes glow {
+            0% { box-shadow: 0 0 20px rgba(0, 255, 136, 0.2); }
+            50% { box-shadow: 0 0 40px rgba(0, 255, 136, 0.4); }
+            100% { box-shadow: 0 0 20px rgba(0, 255, 136, 0.2); }
+        }
+
+        .terminal-line {
+            color: var(--primary-color);
+            margin: 8px 0;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeInUp 0.3s forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+        }
+
+        .chart-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+            display: none;
+        }
+
+        .chart-bar {
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 2px;
+            margin: 10px 0;
+            animation: loading 2s infinite;
+            width: 0%;
+        }
+
+        @keyframes loading {
+            0% { width: 0%; opacity: 0.5; }
+            50% { width: 100%; opacity: 1; }
+            100% { width: 0%; opacity: 0.5; }
+        }
 
         .footer {
             text-align: center;
@@ -782,13 +852,11 @@
         <div class="card">
             <h3 class="card-title"><i class="fas fa-sliders-h"></i> Settings</h3>
 
-
             <div class="api-status">
                 <i class="fas fa-cloud"></i>
                 <span>Connected to:</span>
                 <span class="api-url">https://jummuubotapi.xo.je/main/server.php?endpoint=quotex_assets</span>
             </div>
-
 
             <button id="multi-assist-btn" class="btn btn-multi">
                 <i class="fas fa-layer-group"></i> Multi
@@ -824,6 +892,15 @@
         </div>
 
 
+        <div class="analysis-terminal" id="analysis-terminal">
+            <div class="chart-container" id="chart-container">
+                <div class="chart-bar"></div>
+                <div class="chart-bar" style="animation-delay: 0.5s;"></div>
+                <div class="chart-bar" style="animation-delay: 1s;"></div>
+            </div>
+            <div id="terminal-lines"></div>
+        </div>
+
         <div class="signals-container">
             <div class="signals-header">
                 <h3><i class="fas fa-list-alt"></i> Signals</h3>
@@ -833,7 +910,6 @@
             </div>
 
             <div class="signals-list" id="signal-list">
-
                 <div class="signals-placeholder">
                     ╔════════════════════╗<br>
                     ║  NO SIGNALS YET    ║<br>
@@ -857,7 +933,6 @@
     </div>
 
     <script>
-
         const markets = [
             // Forex OTC Pairs
             { value: 'GBPUSD_otc', label: 'GBP/USD (OTC)', group: 'Forex OTC Pairs' },
@@ -907,7 +982,7 @@
             { value: 'HAMUSD_otc', label: 'Hamster (OTC)', group: 'Cryptocurrencies' },
             { value: 'SHIUSD_otc', label: 'Shiba Inu (OTC)', group: 'Cryptocurrencies' },
             { value: 'ETHUSD_otc', label: 'Ethereum (OTC)', group: 'Cryptocurrencies' },
-            { value: 'CRLUSD_otc', label: 'Cardano (OTC)', group: 'Cryptocurrencies' },
+            { value: 'ADAUSD_otc', label: 'Cardano (OTC)', group: 'Cryptocurrencies' },
             { value: 'BNBUSD_otc', label: 'Binance Coin (OTC)', group: 'Cryptocurrencies' },
             { value: 'XRPUSD_otc', label: 'Ripple (OTC)', group: 'Cryptocurrencies' },
             { value: 'LTCUSD_otc', label: 'Litecoin (OTC)', group: 'Cryptocurrencies' },
@@ -923,16 +998,12 @@
             { value: 'AVAUSD_otc', label: 'Avalanche (OTC)', group: 'Cryptocurrencies' },
             { value: 'BCHUSD_otc', label: 'Bitcoin Cash (OTC)', group: 'Cryptocurrencies' },
             { value: 'DOTUSD_otc', label: 'Polkadot (OTC)', group: 'Cryptocurrencies' },
-            { value: 'LINUSD_otc', label: 'Chainlink (OTC)', group: 'Cryptocurrencies' },
-            { value: 'ATOUSD_otc', label: 'Cosmos (OTC)', group: 'Cryptocurrencies' },
+            { value: 'LINKUSD_otc', label: 'Chainlink (OTC)', group: 'Cryptocurrencies' },
+            { value: 'ATOMUSD_otc', label: 'Cosmos (OTC)', group: 'Cryptocurrencies' },
             { value: 'SOLUSD_otc', label: 'Solana (OTC)', group: 'Cryptocurrencies' },
-            { value: 'ADAUSD_otc', label: 'Cardano (OTC)', group: 'Cryptocurrencies' },
             { value: 'TONUSD_otc', label: 'Toncoin (OTC)', group: 'Cryptocurrencies' },
-            { value: 'FLOUSD_otc', label: 'Floki (OTC)', group: 'Cryptocurrencies' },
-            { value: 'DASUSD_otc', label: 'Dash (OTC)', group: 'Cryptocurrencies' },
-            { value: 'BEAUSD_otc', label: 'Beam (OTC)', group: 'Cryptocurrencies' },
-
-
+            { value: 'FLOKIUSD_otc', label: 'Floki (OTC)', group: 'Cryptocurrencies' },
+            { value: 'DASHUSD_otc', label: 'Dash (OTC)', group: 'Cryptocurrencies' },
 
             // Commodities OTC
             { value: 'UKBrent_otc', label: 'UK Brent Oil (OTC)', group: 'Commodities OTC' },
@@ -951,7 +1022,6 @@
             { value: 'FB_otc', label: 'FACEBOOK INC (OTC)', group: 'Stocks' }
         ];
 
-
         const timeframes = [
             { value: '1', label: '1m' },
             { value: '2', label: '2m' },
@@ -964,24 +1034,11 @@
             { value: '240', label: '4h' }
         ];
 
-
         const weekendRestrictedMarkets = [
-            'GBPUSD_otc',
-            'USDJPY_otc',
-            'USDCHF_otc',
-            'AUDUSD_otc',
-            'NZDUSD_otc',
-            'USDCAD_otc',
-            'EURGBP_otc',
-            'EURJPY_otc',
-            'EURAUD_otc',
-            'EURCHF_otc',
-            'GBPJPY_otc',
-            'GBPCHF_otc',
-            'AUDJPY_otc',
-            'CADCHF_otc'
+            'GBPUSD_otc', 'USDJPY_otc', 'USDCHF_otc', 'AUDUSD_otc', 'NZDUSD_otc',
+            'USDCAD_otc', 'EURGBP_otc', 'EURJPY_otc', 'EURAUD_otc', 'EURCHF_otc',
+            'GBPJPY_otc', 'GBPCHF_otc', 'AUDJPY_otc', 'CADCHF_otc'
         ];
-
 
         let signals = [];
         let selectedAssets = [];
@@ -989,7 +1046,6 @@
         let canGenerateSignals = true;
         let countdownInterval = null;
         let pendingSignals = [];
-
 
         const passwordScreen = document.getElementById('password-screen');
         const mainContainer = document.getElementById('main-container');
@@ -1015,34 +1071,102 @@
         const countdownSeconds = document.getElementById('countdown-seconds');
         const weekendWarning = document.getElementById('weekend-warning');
 
-        // Initialize
-        function init() {
-            loadMarkets();
-            loadTimeframes();
-            updateDateTime();
-            setInterval(updateDateTime, 1000);
-            setupEventListeners();
 
-
-            console.log('Connected to API: https://jummuubotapi.xo.je/main/server.php?endpoint=quotex_assets');
+        async function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
         }
 
+        async function showLineThenDelete(line) {
+            const terminalLines = document.getElementById('terminal-lines');
+            if (!terminalLines) return;
+
+            const lineElement = document.createElement('div');
+            lineElement.className = 'terminal-line';
+            lineElement.innerHTML = `<i class="fas fa-circle"></i> ${line}`;
+            terminalLines.appendChild(lineElement);
+
+            await sleep(3000);
+
+            lineElement.style.animation = 'fadeOut 0.3s forwards';
+            await sleep(300);
+            if (terminalLines.contains(lineElement)) {
+                terminalLines.removeChild(lineElement);
+            }
+        }
+
+        async function deleteText() {
+            const terminalLines = document.getElementById('terminal-lines');
+            if (terminalLines) {
+                terminalLines.innerHTML = '';
+            }
+        }
+
+        function renderCandleChart() {
+            const chartContainer = document.getElementById('chart-container');
+            if (chartContainer) {
+                chartContainer.style.display = 'block';
+            }
+        }
+
+        async function runAnalysisSequence() {
+            const terminal = document.getElementById('analysis-terminal');
+            const chartContainer = document.getElementById('chart-container');
+
+            if (!terminal) return;
+
+            terminal.classList.add('active');
+            if (chartContainer) {
+                chartContainer.style.display = 'block';
+            }
+
+            await deleteText();
+
+            try {
+
+                const response = await fetch('/api/analysis-steps');
+                const data = await response.json();
+
+                let analysisSteps = [];
+                if (data.success && data.steps) {
+                    for (let i = 0; i < data.steps.length; i += 2) {
+                        if (i + 1 < data.steps.length) {
+                            analysisSteps.push([data.steps[i], data.steps[i + 1]]);
+                        }
+                    }
+                } else {
+
+                }
+
+                renderCandleChart();
+
+                for (const [startLine, completeLine] of analysisSteps) {
+                    await showLineThenDelete(startLine);
+                    await showLineThenDelete(completeLine);
+                }
+            } catch (error) {
+                console.error('Error fetching analysis steps:', error);
+
+                renderCandleChart();
+
+                for (const [startLine, completeLine] of fallbackSteps) {
+                    await showLineThenDelete(startLine);
+                    await showLineThenDelete(completeLine);
+                }
+            }
+        }
 
         function isWeekend() {
             const today = new Date().getDay();
-            return today === 0 || today === 6; // 0 = Sunday, 6 = Saturday
+            return today === 0 || today === 6;
         }
-
 
         function isMarketRestricted(marketValue) {
             return weekendRestrictedMarkets.includes(marketValue);
         }
 
-
         function loadMarkets() {
             const groups = {};
             const weekend = isWeekend();
-
 
             if (weekend) {
                 weekendWarning.classList.add('show');
@@ -1075,7 +1199,6 @@
                     item.dataset.value = market.value;
                     item.dataset.label = market.label;
 
-
                     const isRestricted = weekend && isMarketRestricted(market.value);
                     if (isRestricted) {
                         item.classList.add('disabled');
@@ -1083,7 +1206,6 @@
 
                     item.addEventListener('click', (e) => {
                         e.preventDefault();
-
 
                         if (isRestricted) {
                             showNotification(`${market.label} is not available on weekends`, 'warning');
@@ -1110,7 +1232,6 @@
             });
         }
 
-
         marketSearch.addEventListener('input', function() {
             const searchTerm = this.value.toLowerCase();
             document.querySelectorAll('.market-item').forEach(item => {
@@ -1119,11 +1240,9 @@
             });
         });
 
-
         function toggleAssetSelection(market) {
             const index = selectedAssets.indexOf(market.value);
             const item = document.querySelector(`.market-item[data-value="${market.value}"]`);
-
 
             if (isWeekend() && isMarketRestricted(market.value)) {
                 showNotification(`${market.label} is not available on weekends`, 'warning');
@@ -1142,7 +1261,6 @@
 
             updateSelectedAssetsDisplay();
         }
-
 
         function updateSelectedAssetsDisplay() {
             selectedAssetsList.innerHTML = '';
@@ -1166,7 +1284,6 @@
             }
         }
 
-
         window.removeAsset = function(asset) {
             selectedAssets = selectedAssets.filter(a => a !== asset);
             const item = document.querySelector(`.market-item[data-value="${asset}"]`);
@@ -1174,7 +1291,6 @@
             updateSelectedAssetsDisplay();
             showNotification('Asset removed', 'info');
         };
-
 
         function loadTimeframes() {
             timeframeGrid.innerHTML = '';
@@ -1196,12 +1312,10 @@
             });
         }
 
-
         function getSelectedTimeframe() {
             const activeBtn = document.querySelector('.timeframe-btn.active');
             return activeBtn ? activeBtn.dataset.value : '1';
         }
-
 
         function formatDate(date) {
             const day = date.getDate().toString().padStart(2, '0');
@@ -1215,7 +1329,6 @@
             document.getElementById('current-date').textContent = formatDate(now);
             document.getElementById('current-time').textContent = now.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'});
         }
-
 
         async function verifyPassword() {
             const password = passwordInput.value;
@@ -1243,7 +1356,6 @@
             }
         }
 
-
         async function generateSignals() {
             if (!canGenerateSignals) {
                 showNotification('Please wait for cooldown', 'warning');
@@ -1265,10 +1377,23 @@
                 }
             }
 
-            showCountdownAnimation();
+            canGenerateSignals = false;
+            generateSignalsBtn.disabled = true;
+
+            signalList.style.display = 'none';
+            countdownAnimation.classList.remove('show');
+
+            const analysisTerminal = document.getElementById('analysis-terminal');
+            if (analysisTerminal) {
+                analysisTerminal.classList.add('active');
+            }
+
+            runAnalysisSequence();
 
             try {
-            //api's main logics are hidden in the backend
+
+                //The main API's logic is hidden on the server
+
                 const response = await fetch('/api/generate-signals', {
                     method: 'POST',
                     headers: {
@@ -1285,36 +1410,45 @@
                 const data = await response.json();
 
                 if (data.success) {
-
                     pendingSignals = data.signals;
 
-
                     setTimeout(() => {
-                        hideCountdownAnimation();
+                        if (analysisTerminal) {
+                            analysisTerminal.classList.remove('active');
+                        }
+                        document.getElementById('chart-container').style.display = 'none';
+                        signalList.style.display = 'block';
+
                         displayGeneratedSignals();
                         startCooldown();
-                    }, 60000);
+                    }, 55000);
                 } else {
-                    hideCountdownAnimation();
                     showNotification(data.error || 'Failed to generate signals', 'error');
                     canGenerateSignals = true;
                     generateSignalsBtn.disabled = false;
+                    signalList.style.display = 'block';
+                    if (analysisTerminal) {
+                        analysisTerminal.classList.remove('active');
+                    }
                 }
             } catch (error) {
-                hideCountdownAnimation();
+                console.error('Error:', error);
                 showNotification('Network error', 'error');
                 canGenerateSignals = true;
                 generateSignalsBtn.disabled = false;
+                signalList.style.display = 'block';
+                if (analysisTerminal) {
+                    analysisTerminal.classList.remove('active');
+                }
             }
         }
-
 
         function showCountdownAnimation() {
             canGenerateSignals = false;
             generateSignalsBtn.disabled = true;
             countdownAnimation.classList.add('show');
 
-            let timeLeft = 60;
+            let timeLeft = 40;
             countdownNumber.textContent = timeLeft;
             countdownSeconds.textContent = timeLeft;
 
@@ -1333,20 +1467,21 @@
             countdownAnimation.classList.remove('show');
         }
 
-        // Display signals
         function displayGeneratedSignals() {
             signals.push(...pendingSignals);
 
             const now = new Date();
+            const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+            const utcPlus6 = new Date(utc + (3600000 * 6));
             const timeframe = getSelectedTimeframe();
 
             let html = '';
 
             html += `<div class="signal-header">`;
-            html += `🖥${formatDate(now)}<br><br>`;
-            html += `⌛UTC +06:00 BANGLADESH 🇧🇩<br><br>`;
-            html += `❗️ AVOID SIGNAL AFTER BIG MOMENTUM,DOJI,BELOW 80%,GAPES😊<br><br>`;
-            html += `⚡️MARTINGALE:-01<br><br>`;
+            html += `🖥 ${formatDate(utcPlus6)}<br><br>`;
+            html += `⌛ UTC +06:00 BANGLADESH 🇧🇩<br><br>`;
+            html += `❗️ AVOID SIGNAL AFTER BIG MOMENTUM, DOJI, BELOW 80%, GAPES😊<br><br>`;
+            html += `⚡️ MARTINGALE:-01<br><br>`;
             html += `${timeframe} MINUTES :-<br><br>`;
             html += `</div>`;
 
@@ -1360,7 +1495,7 @@
             });
 
             html += `<div class="signal-footer">`;
-            html += `Join Telegram: @jummuubot<br>`;
+            html += `🟡 Join Telegram: @jummuubot<br>`;
             html += `⚠️ Trade at your own risk`;
             html += `</div>`;
 
@@ -1369,7 +1504,6 @@
 
             showNotification('Signals generated via API!', 'success');
         }
-
 
         function startCooldown() {
             countdownBox.classList.add('active');
@@ -1393,7 +1527,6 @@
             }, 1000);
         }
 
-
         function copySignalsToClipboard() {
             if (signals.length === 0) {
                 showNotification('No signals to copy', 'warning');
@@ -1414,7 +1547,7 @@
                 text += `● ${assetName} ${signal.timeframe} ${signal.time} ≫ ${signal.direction}\n`;
             });
 
-            text += `\nJoin Telegram: @jummuubot\n`;
+            text += `\n🟡 Join Telegram: @jummuubot\n`;
             text += `⚠️ Trade at your own risk`;
 
             if (navigator.clipboard && window.isSecureContext) {
@@ -1471,7 +1604,6 @@
             }, 2000);
         }
 
-
         function resetSignals() {
             signals = [];
             pendingSignals = [];
@@ -1486,7 +1618,6 @@
             `;
             showNotification('Signals reset', 'info');
         }
-
 
         function toggleMultiAssistMode() {
             multiAssistMode = !multiAssistMode;
@@ -1509,7 +1640,6 @@
             }
         }
 
-
         function showNotification(message, type = 'info') {
             notificationMessage.textContent = message;
             notification.className = 'notification show';
@@ -1521,7 +1651,6 @@
                 notification.classList.remove('show');
             }, 3000);
         }
-
 
         function setupEventListeners() {
             submitPasswordBtn.addEventListener('click', verifyPassword);
@@ -1535,7 +1664,6 @@
             multiAssistBtn.addEventListener('click', toggleMultiAssistMode);
             copySignalsBtn.addEventListener('click', copySignalsToClipboard);
 
-            // Prevent dev tools
             document.addEventListener('contextmenu', (e) => e.preventDefault());
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'F12' ||
@@ -1546,7 +1674,17 @@
             });
         }
 
-        // Initialize
+
+        function init() {
+            loadMarkets();
+            loadTimeframes();
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            setupEventListeners();
+            console.log('Connected to API: https://jummuubotapi.xo.je/main/server.php?endpoint=quotex_assets');
+        }
+
+
         window.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
