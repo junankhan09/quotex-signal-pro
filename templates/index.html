@@ -226,27 +226,6 @@
         }
 
 
-        .weekend-warning {
-            background: rgba(255, 165, 2, 0.15);
-            border: 1px solid var(--warning);
-            border-radius: 30px;
-            padding: 12px 15px;
-            margin-bottom: 15px;
-            display: none;
-            align-items: center;
-            gap: 10px;
-            font-size: 13px;
-        }
-
-        .weekend-warning i {
-            color: var(--warning);
-        }
-
-        .weekend-warning.show {
-            display: flex;
-        }
-
-
         .dashboard {
             display: flex;
             flex-direction: column;
@@ -334,37 +313,6 @@
             background: rgba(0, 255, 136, 0.15);
             border-color: var(--primary-color);
             color: var(--primary-color);
-        }
-
-
-        .market-item.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            background: rgba(255, 71, 87, 0.1);
-            border-color: var(--danger);
-            position: relative;
-        }
-
-        .market-item.disabled:hover {
-            background: rgba(255, 71, 87, 0.15);
-        }
-
-        .market-item.disabled::after {
-            content: "⛔ Weekend";
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: var(--danger);
-            color: white;
-            font-size: 8px;
-            padding: 2px 6px;
-            border-radius: 10px;
-            font-weight: bold;
-        }
-
-        .market-item.disabled:active {
-            transform: none;
-            background: rgba(255, 71, 87, 0.1);
         }
 
 
@@ -824,13 +772,6 @@
             </div>
         </div>
 
-
-        <div class="weekend-warning" id="weekend-warning">
-            <i class="fas fa-exclamation-triangle"></i>
-            <span>Weekend Market Restrictions: Some forex pairs are disabled (Sat-Sun)</span>
-        </div>
-
-
         <div class="card market-selector">
             <h3 class="card-title"><i class="fas fa-coins"></i> Markets</h3>
 
@@ -934,21 +875,9 @@
 
     <script>
         const markets = [
+
             // Forex OTC Pairs
-            { value: 'GBPUSD_otc', label: 'GBP/USD (OTC)', group: 'Forex OTC Pairs' },
-            { value: 'USDJPY_otc', label: 'USD/JPY (OTC)', group: 'Forex OTC Pairs' },
-            { value: 'USDCHF_otc', label: 'USD/CHF (OTC)', group: 'Forex OTC Pairs' },
-            { value: 'AUDUSD_otc', label: 'AUD/USD (OTC)', group: 'Forex OTC Pairs' },
-            { value: 'USDCAD_otc', label: 'USD/CAD (OTC)', group: 'Forex OTC Pairs' },
-            { value: 'EURGBP_otc', label: 'EUR/GBP (OTC)', group: 'Forex OTC Pairs' },
-            { value: 'EURNZD_otc', label: 'EUR/NZD (OTC)', group: 'Forex OTC Pairs' },
-            { value: 'EURJPY_otc', label: 'EUR/JPY (OTC)', group: 'Forex OTC Pairs' },
-            { value: 'GBPJPY_otc', label: 'GBP/JPY (OTC)', group: 'Forex OTC Pairs' },
-            { value: 'AUDJPY_otc', label: 'AUD/JPY (OTC)', group: 'Forex OTC Pairs' },
-            { value: 'EURCHF_otc', label: 'EUR/CHF (OTC)', group: 'Forex OTC Pairs' },
-            { value: 'EURSGD_otc', label: 'EUR/SGD (OTC)', group: 'Forex OTC Pairs' },
-            { value: 'GBPCHF_otc', label: 'GBP/CHF (OTC)', group: 'Forex OTC Pairs' },
-            { value: 'NZDUSD_otc', label: 'NZD/USD (OTC)', group: 'Forex OTC Pairs' },
+
             { value: 'NZDCHF_otc', label: 'NZD/CHF (OTC)', group: 'Forex OTC Pairs' },
             { value: 'NZDCAD_otc', label: 'NZD/CAD (OTC)', group: 'Forex OTC Pairs' },
             { value: 'NZDJPY_otc', label: 'NZD/JPY (OTC)', group: 'Forex OTC Pairs' },
@@ -975,7 +904,7 @@
             { value: 'USDIDR_otc', label: 'USD/IDR (OTC)', group: 'Forex OTC Pairs' },
             { value: 'USDZAR_otc', label: 'USD/ZAR (OTC)', group: 'Forex OTC Pairs' },
 
-            // Cryptocurrencies
+            // Cryptocurrencies - All Available 24/7
             { value: 'BTCUSD_otc', label: 'Bitcoin (OTC)', group: 'Cryptocurrencies' },
             { value: 'ARBUSD_otc', label: 'Arbitrum (OTC)', group: 'Cryptocurrencies' },
             { value: 'AXIUSD_otc', label: 'Axie Infinity (OTC)', group: 'Cryptocurrencies' },
@@ -1005,13 +934,13 @@
             { value: 'FLOKIUSD_otc', label: 'Floki (OTC)', group: 'Cryptocurrencies' },
             { value: 'DASHUSD_otc', label: 'Dash (OTC)', group: 'Cryptocurrencies' },
 
-            // Commodities OTC
+            // Commodities OTC - Available 24/7
             { value: 'UKBrent_otc', label: 'UK Brent Oil (OTC)', group: 'Commodities OTC' },
             { value: 'USCrude_otc', label: 'US Crude Oil (OTC)', group: 'Commodities OTC' },
             { value: 'XAUUSD_otc', label: 'Gold (OTC)', group: 'Commodities OTC' },
             { value: 'XAGUSD_otc', label: 'Silver (OTC)', group: 'Commodities OTC' },
 
-            // Stocks
+            // Stocks - Available 24/7
             { value: 'MSFT_otc', label: 'Microsoft (OTC)', group: 'Stocks' },
             { value: 'PFE_otc', label: 'Pfizer (OTC)', group: 'Stocks' },
             { value: 'BA_otc', label: 'Boeing (OTC)', group: 'Stocks' },
@@ -1032,12 +961,6 @@
             { value: '60', label: '1h' },
             { value: '120', label: '2h' },
             { value: '240', label: '4h' }
-        ];
-
-        const weekendRestrictedMarkets = [
-            'GBPUSD_otc', 'USDJPY_otc', 'USDCHF_otc', 'AUDUSD_otc', 'NZDUSD_otc',
-            'USDCAD_otc', 'EURGBP_otc', 'EURJPY_otc', 'EURAUD_otc', 'EURCHF_otc',
-            'GBPJPY_otc', 'GBPCHF_otc', 'AUDJPY_otc', 'CADCHF_otc'
         ];
 
         let signals = [];
@@ -1069,7 +992,6 @@
         const countdownAnimation = document.getElementById('countdown-animation');
         const countdownNumber = document.getElementById('countdown-number');
         const countdownSeconds = document.getElementById('countdown-seconds');
-        const weekendWarning = document.getElementById('weekend-warning');
 
 
         async function sleep(ms) {
@@ -1155,24 +1077,8 @@
             }
         }
 
-        function isWeekend() {
-            const today = new Date().getDay();
-            return today === 0 || today === 6;
-        }
-
-        function isMarketRestricted(marketValue) {
-            return weekendRestrictedMarkets.includes(marketValue);
-        }
-
         function loadMarkets() {
             const groups = {};
-            const weekend = isWeekend();
-
-            if (weekend) {
-                weekendWarning.classList.add('show');
-            } else {
-                weekendWarning.classList.remove('show');
-            }
 
             markets.forEach(market => {
                 if (!groups[market.group]) {
@@ -1199,18 +1105,8 @@
                     item.dataset.value = market.value;
                     item.dataset.label = market.label;
 
-                    const isRestricted = weekend && isMarketRestricted(market.value);
-                    if (isRestricted) {
-                        item.classList.add('disabled');
-                    }
-
                     item.addEventListener('click', (e) => {
                         e.preventDefault();
-
-                        if (isRestricted) {
-                            showNotification(`${market.label} is not available on weekends`, 'warning');
-                            return;
-                        }
 
                         if (multiAssistMode) {
                             toggleAssetSelection(market);
@@ -1243,11 +1139,6 @@
         function toggleAssetSelection(market) {
             const index = selectedAssets.indexOf(market.value);
             const item = document.querySelector(`.market-item[data-value="${market.value}"]`);
-
-            if (isWeekend() && isMarketRestricted(market.value)) {
-                showNotification(`${market.label} is not available on weekends`, 'warning');
-                return;
-            }
 
             if (index === -1) {
                 selectedAssets.push(market.value);
@@ -1392,7 +1283,7 @@
 
             try {
 
-                //The main API's logic is hidden on the server
+                //The main API's logic is hidden on the backend server
 
                 const response = await fetch('/api/generate-signals', {
                     method: 'POST',
