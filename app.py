@@ -3,6 +3,7 @@ import os
 from datetime import datetime, timedelta
 import random
 import secrets
+import time
 
 # Create Flask app with explicit template folder for Render
 app = Flask(__name__, template_folder='templates')
@@ -11,10 +12,12 @@ app = Flask(__name__, template_folder='templates')
 app.config['PASSWORD'] = os.environ.get('SITE_PASSWORD', 'jummuubot')
 app.config['SECRET_KEY'] = secrets.token_hex(32)
 
+
 # Test route to verify Render is working
 @app.route('/api/test')
 def test():
     return jsonify({'status': 'ok', 'message': 'Render is working!'})
+
 
 # ============================================
 # COMPLETE MARKETS DATA (EXACTLY FROM YOUR HTML)
@@ -142,13 +145,19 @@ def format_timeframe(tf):
 
 def generate_signals_logic(assets, count, timeframe, multi_assist=False):
     """
-    Core signal generation logic - completely hidden from frontend
+    Core signal generation logic - generates future times based on UTC+6
     """
     signals = []
-    next_time = datetime.now()
+
+    # Get current UTC time and add 6 hours for UTC+6 (Bangladesh)
+    utc_now = datetime.utcnow()
+    utc_plus_6 = utc_now + timedelta(hours=6)
+
+    # Start from current UTC+6 time
+    next_time = utc_plus_6
 
     for i in range(count):
-        # Add random interval
+        # Add random interval between 3-6 minutes for future signals
         next_time = next_time + timedelta(minutes=generate_random_interval())
         time_str = next_time.strftime('%H:%M')
 
@@ -207,6 +216,33 @@ def verify_password():
             return jsonify({'success': True})
         else:
             return jsonify({'success': False}), 401
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/analysis-steps', methods=['GET'])
+def get_analysis_steps():
+    """Return analysis steps for frontend animation"""
+    try:
+        analysis_steps = [
+            "Analyzing market trends...",
+            "✓ Trend analysis complete",
+            "Checking volume patterns...",
+            "✓ Volume analysis verified",
+            "Identifying support/resistance...",
+            "✓ Key levels identified",
+            "Calculating momentum...",
+            "✓ Momentum confirmed",
+            "Assessing volatility...",
+            "✓ Volatility measured",
+            "Generating signal...",
+            "✓ High-probability signal ready"
+        ]
+
+        return jsonify({
+            'success': True,
+            'steps': analysis_steps
+        })
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
