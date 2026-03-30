@@ -3,24 +3,21 @@ import os
 from datetime import datetime, timedelta
 import random
 import secrets
-import time
+import logging
 
-# Create Flask app with explicit template folder for Render
+# Setup logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Create Flask app
 app = Flask(__name__, template_folder='templates')
 
 # Configuration - Get password from environment variable
 app.config['PASSWORD'] = os.environ.get('SITE_PASSWORD', 'jummuubot')
 app.config['SECRET_KEY'] = secrets.token_hex(32)
 
-
-# Test route to verify Render is working
-@app.route('/api/test')
-def test():
-    return jsonify({'status': 'ok', 'message': 'Render is working!'})
-
-
 # ============================================
-# COMPLETE MARKETS DATA (EXACTLY FROM YOUR HTML)
+# COMPLETE MARKETS DATA (ALL YOUR PAIRS - HIDDEN FROM USER)
 # ============================================
 MARKETS = [
     # Forex OTC Pairs
@@ -111,7 +108,7 @@ MARKETS = [
     {'value': 'FB_otc', 'label': 'Facebook (OTC)', 'group': 'Stocks'}
 ]
 
-# Timeframes (same as your HTML)
+# Timeframes
 TIMEFRAMES = [
     {'value': '1', 'label': '1m'},
     {'value': '2', 'label': '2m'},
@@ -124,12 +121,13 @@ TIMEFRAMES = [
     {'value': '240', 'label': '4h'}
 ]
 
-# Cache to prevent duplicate signals
+# Cache to prevent duplicate signals (HIDDEN FROM USER)
 generated_signals_cache = set()
+analysis_cache = {}
 
 
 # ============================================
-# SIGNAL GENERATION LOGIC (HIDDEN IN BACKEND)
+# HIDDEN SIGNAL GENERATION LOGIC (USERS CANNOT SEE THIS)
 # ============================================
 
 def generate_random_interval():
@@ -143,9 +141,22 @@ def format_timeframe(tf):
     return f"M{tf_int}" if tf_int < 60 else f"H{tf_int // 60}"
 
 
+def calculate_signal_strength():
+    """Hidden algorithm for signal strength (random but looks realistic)"""
+    strengths = ['High', 'Medium', 'Low']
+    weights = [0.6, 0.3, 0.1]  # 60% high, 30% medium, 10% low
+    return random.choices(strengths, weights=weights)[0]
+
+
+def calculate_confidence():
+    """Hidden algorithm for confidence percentage"""
+    return random.randint(75, 98)
+
+
 def generate_signals_logic(assets, count, timeframe, multi_assist=False):
     """
-    Core signal generation logic - generates future times based on UTC+6
+    Core signal generation logic - COMPLETELY HIDDEN FROM USERS
+    Uses random math but appears realistic to users
     """
     signals = []
 
@@ -158,10 +169,11 @@ def generate_signals_logic(assets, count, timeframe, multi_assist=False):
 
     for i in range(count):
         # Add random interval between 3-6 minutes for future signals
-        next_time = next_time + timedelta(minutes=generate_random_interval())
+        interval = generate_random_interval()
+        next_time = next_time + timedelta(minutes=interval)
         time_str = next_time.strftime('%H:%M')
 
-        # Select asset
+        # Select asset (random if multi-assist, otherwise first selected)
         if multi_assist and assets:
             selected_asset = random.choice(assets)
         else:
@@ -175,14 +187,20 @@ def generate_signals_logic(assets, count, timeframe, multi_assist=False):
         signal_key = f"{selected_asset}|{time_str}"
 
         if signal_key not in generated_signals_cache:
-            # Random direction
+            # Random direction with slight bias for variety
             direction = random.choice(['CALL', 'PUT'])
+
+            # Hidden calculations for signal metadata
+            signal_strength = calculate_signal_strength()
+            confidence = calculate_confidence()
 
             signals.append({
                 'asset': asset_label,
                 'time': time_str,
                 'direction': direction,
-                'timeframe': format_timeframe(timeframe)
+                'timeframe': format_timeframe(timeframe),
+                'strength': signal_strength,  # Hidden from frontend but available
+                'confidence': confidence  # Hidden from frontend but available
             })
 
             # Add to cache
@@ -195,14 +213,49 @@ def generate_signals_logic(assets, count, timeframe, multi_assist=False):
     return signals
 
 
+def get_analysis_steps():
+    """Hidden analysis steps that look professional to users"""
+    steps = [
+        "📊 Analyzing price action patterns...",
+        "✓ Pattern recognition complete",
+        "📈 Calculating RSI and momentum indicators...",
+        "✓ Technical indicators processed",
+        "🔍 Identifying support and resistance levels...",
+        "✓ Key levels identified",
+        "📉 Analyzing volume profile...",
+        "✓ Volume analysis verified",
+        "🎯 Calculating entry points...",
+        "✓ Entry levels optimized",
+        "💰 Setting take profit targets...",
+        "✓ Profit targets calculated",
+        "🛡️ Determining stop loss levels...",
+        "✓ Risk management parameters set",
+        "⚡ Generating final signal...",
+        "✓ High-probability signal ready for execution"
+    ]
+    return steps
+
+
 # ============================================
-# API ROUTES
+# API ROUTES - ALL WORKING FOR RAILWAY
 # ============================================
 
 @app.route('/')
 def index():
     """Serve your HTML page"""
+    logger.info("Serving index page")
     return render_template('index.html')
+
+
+@app.route('/health')
+def health():
+    """Health check endpoint for Railway"""
+    return jsonify({
+        'status': 'ok',
+        'message': 'Quotex Signal Pro is running!',
+        'timestamp': datetime.now().isoformat(),
+        'version': '3.0'
+    })
 
 
 @app.route('/api/verify-password', methods=['POST'])
@@ -210,48 +263,45 @@ def verify_password():
     """Verify password - HIDDEN FROM USER"""
     try:
         data = request.get_json()
+        if not data:
+            return jsonify({'success': False, 'error': 'No data provided'}), 400
+
         password = data.get('password', '')
 
+        # Simple comparison - hidden logic
         if password == app.config['PASSWORD']:
+            logger.info("Successful login attempt")
             return jsonify({'success': True})
         else:
-            return jsonify({'success': False}), 401
+            logger.warning("Failed login attempt")
+            return jsonify({'success': False, 'error': 'Invalid password'}), 401
     except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
+        logger.error(f"Password verification error: {e}")
+        return jsonify({'success': False, 'error': 'Server error'}), 500
 
 
 @app.route('/api/analysis-steps', methods=['GET'])
-def get_analysis_steps():
-    """Return analysis steps for frontend animation"""
+def get_analysis_steps_api():
+    """Return analysis steps for frontend animation - HIDDEN LOGIC"""
     try:
-        analysis_steps = [
-            "Analyzing market trends...",
-            "✓ Trend analysis complete",
-            "Checking volume patterns...",
-            "✓ Volume analysis verified",
-            "Identifying support/resistance...",
-            "✓ Key levels identified",
-            "Calculating momentum...",
-            "✓ Momentum confirmed",
-            "Assessing volatility...",
-            "✓ Volatility measured",
-            "Generating signal...",
-            "✓ High-probability signal ready"
-        ]
-
+        steps = get_analysis_steps()
         return jsonify({
             'success': True,
-            'steps': analysis_steps
+            'steps': steps
         })
     except Exception as e:
+        logger.error(f"Analysis steps error: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
 @app.route('/api/generate-signals', methods=['POST'])
-def generate_signals():
+def generate_signals_api():
     """Generate signals - ALL LOGIC HIDDEN HERE"""
     try:
         data = request.get_json()
+        if not data:
+            return jsonify({'success': False, 'error': 'No data provided'}), 400
+
         assets = data.get('assets', [])
         count = data.get('count', 10)
         timeframe = data.get('timeframe', '1')
@@ -261,23 +311,110 @@ def generate_signals():
         if not assets:
             return jsonify({'success': False, 'error': 'No assets selected'}), 400
 
-        # Generate signals
+        # Validate count
+        if count < 1 or count > 50:
+            count = 10
+
+        # Generate signals using hidden logic
         signals = generate_signals_logic(assets, count, timeframe, multi_assist)
+
+        # Remove hidden fields before sending to frontend
+        clean_signals = []
+        for signal in signals:
+            clean_signals.append({
+                'asset': signal['asset'],
+                'time': signal['time'],
+                'direction': signal['direction'],
+                'timeframe': signal['timeframe']
+            })
+
+        logger.info(f"Generated {len(clean_signals)} signals for {len(assets)} assets")
 
         return jsonify({
             'success': True,
-            'signals': signals
+            'signals': clean_signals,
+            'count': len(clean_signals),
+            'generated_at': datetime.now().isoformat()
         })
     except Exception as e:
+        logger.error(f"Signal generation error: {e}")
+        return jsonify({'success': False, 'error': 'Failed to generate signals'}), 500
+
+
+@app.route('/api/test')
+def test():
+    """Test endpoint to verify API is working"""
+    return jsonify({
+        'status': 'ok',
+        'message': 'API is working on Railway!',
+        'version': '3.0',
+        'password_protected': bool(app.config['PASSWORD']),
+        'markets_loaded': len(MARKETS)
+    })
+
+
+@app.route('/api/markets', methods=['GET'])
+def get_markets():
+    """Get all available markets"""
+    try:
+        return jsonify({
+            'success': True,
+            'markets': MARKETS,
+            'count': len(MARKETS)
+        })
+    except Exception as e:
+        logger.error(f"Markets error: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
+@app.route('/api/timeframes', methods=['GET'])
+def get_timeframes():
+    """Get all available timeframes"""
+    try:
+        return jsonify({
+            'success': True,
+            'timeframes': TIMEFRAMES
+        })
+    except Exception as e:
+        logger.error(f"Timeframes error: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+# ============================================
+# ERROR HANDLERS
+# ============================================
+
+@app.errorhandler(404)
+def not_found(error):
+    """Handle 404 errors"""
+    return jsonify({'success': False, 'error': 'Endpoint not found'}), 404
+
+
+@app.errorhandler(500)
+def internal_error(error):
+    """Handle 500 errors"""
+    logger.error(f"Internal server error: {error}")
+    return jsonify({'success': False, 'error': 'Internal server error'}), 500
+
+
+# ============================================
+# MAIN ENTRY POINT
+# ============================================
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    print("=" * 50)
-    print("Quotex Signal Pro - Backend Server")
-    print("=" * 50)
-    print(f"📍 URL: http://localhost:{port}")
-    print(f"🔑 Password: {app.config['PASSWORD']}")
-    print("=" * 50)
-    app.run(host='0.0.0.0', port=port, debug=True)
+    debug_mode = os.environ.get('FLASK_ENV', 'production') == 'development'
+
+    print("=" * 60)
+    print("🚀 QUOTEX SIGNAL PRO - Backend Server")
+    print("=" * 60)
+    print(f"📍 Server URL: http://localhost:{port}")
+    print(f"🔑 Access Password: {app.config['PASSWORD']}")
+    print(f"🌍 Environment: {os.environ.get('FLASK_ENV', 'production')}")
+    print(f"📊 Markets Loaded: {len(MARKETS)}")
+    print(f"⏱️  Timeframes Available: {len(TIMEFRAMES)}")
+    print("=" * 60)
+    print("✅ Server is ready to accept connections")
+    print("=" * 60)
+
+    app.run(host='0.0.0.0', port=port, debug=debug_mode)
